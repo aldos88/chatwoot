@@ -4,30 +4,68 @@ import { useUISettings } from 'dashboard/composables/useUISettings';
 import SidebarActionsHeader from 'dashboard/components-next/SidebarActionsHeader.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
+import himatildaAPI from 'dashboard/api/himatilda';
 
 const { updateUISettings } = useUISettings();
 
 const activeAction = ref(null);
 const resultText = ref('');
+const loading = ref(false);
+const errorMessage = ref('');
+const rewriteInput = ref('');
 
 const actions = [
   { key: 'summarize', label: 'Summarize conversation', icon: 'i-lucide-file-text' },
   { key: 'suggest', label: 'Suggest a reply', icon: 'i-lucide-message-square' },
-  { key: 'sentiment', label: 'Check sentiment', icon: 'i-lucide-heart-pulse' },
+  { key: 'rewrite', label: 'Rewrite draft', icon: 'i-lucide-pencil-line' },
 ];
 
-const mockResults = {
-  summarize:
-    'The customer asked about appointment availability for next week. The agent confirmed Tuesday and Thursday slots are open and requested a preferred time.',
-  suggest:
-    'Hi! Thank you for reaching out. I can confirm we have availability on Tuesday at 10 AM and Thursday at 2 PM. Would either of those work for you?',
-  sentiment:
-    'Overall sentiment: Positive. The customer is engaged and interested in booking. No signs of frustration detected.',
+const callAPI = async key => {
+  if (key === 'summarize') {
+    return himatildaAPI.summarize({});
+  }
+  if (key === 'suggest') {
+    return himatildaAPI.suggestReply({});
+  }
+  if (key === 'rewrite') {
+    return himatildaAPI.rewrite({ text: rewriteInput.value });
+  }
+  return null;
 };
 
-const handleAction = action => {
+const handleAction = async action => {
   activeAction.value = action.key;
-  resultText.value = mockResults[action.key];
+  resultText.value = '';
+  errorMessage.value = '';
+
+  // For rewrite, wait for user to submit text first
+  if (action.key === 'rewrite') {
+    return;
+  }
+
+  loading.value = true;
+  try {
+    const res = await callAPI(action.key);
+    resultText.value = res?.data?.text || '';
+  } catch (err) {
+    errorMessage.value = err?.message || 'Something went wrong';
+  } finally {
+    loading.value = false;
+  }
+};
+
+const handleRewriteSubmit = async () => {
+  if (!rewriteInput.value.trim()) return;
+  loading.value = true;
+  errorMessage.value = '';
+  try {
+    const res = await callAPI('rewrite');
+    resultText.value = res?.data?.text || '';
+  } catch (err) {
+    errorMessage.value = err?.message || 'Something went wrong';
+  } finally {
+    loading.value = false;
+  }
 };
 
 const handleUse = () => {
@@ -75,6 +113,7 @@ const closeCopilotPanel = () => {
               'border-n-blue-7 bg-n-blue-2 text-n-blue-11':
                 activeAction === action.key,
             }"
+            :disabled="loading"
             @click="handleAction(action)"
           >
             <span class="flex items-center gap-2">
@@ -86,9 +125,47 @@ const closeCopilotPanel = () => {
         </div>
       </div>
 
+      <!-- Rewrite input -->
+      <div
+        v-if="activeAction === 'rewrite' && !resultText && !loading"
+        class="w-full space-y-2"
+      >
+        <textarea
+          v-model="rewriteInput"
+          class="w-full rounded-md border border-n-weak bg-n-slate-2 text-n-slate-11 px-3 py-2 text-sm resize-none focus:outline-none focus:border-n-blue-7"
+          rows="4"
+          placeholder="Paste or type the draft you want to rewrite..."
+        />
+        <Button
+          label="Rewrite"
+          faded
+          sm
+          slate
+          :disabled="!rewriteInput.trim()"
+          @click="handleRewriteSubmit"
+        />
+      </div>
+
+      <!-- Loading -->
+      <div
+        v-if="loading"
+        class="w-full flex items-center gap-2 text-n-slate-10 py-2"
+      >
+        <Icon icon="i-lucide-loader-2" class="text-base animate-spin" />
+        <span>Thinking...</span>
+      </div>
+
+      <!-- Error -->
+      <div
+        v-if="errorMessage"
+        class="w-full rounded-md bg-n-ruby-2 border border-n-ruby-7 text-n-ruby-11 px-3 py-2 text-sm"
+      >
+        {{ errorMessage }}
+      </div>
+
       <!-- Result card -->
       <div
-        v-if="activeAction"
+        v-if="resultText"
         class="w-full rounded-lg border border-n-weak bg-n-surface-1 p-4 space-y-3"
       >
         <div class="font-medium text-n-slate-12">Copilot</div>
