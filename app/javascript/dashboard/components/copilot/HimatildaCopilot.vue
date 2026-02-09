@@ -1,12 +1,24 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useUISettings } from 'dashboard/composables/useUISettings';
+import { useMapGetter } from 'dashboard/composables/store';
 import SidebarActionsHeader from 'dashboard/components-next/SidebarActionsHeader.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 import himatildaAPI from 'dashboard/api/himatilda';
 
 const { updateUISettings } = useUISettings();
+
+const currentChat = useMapGetter('getSelectedChat');
+const accountId = useMapGetter('getCurrentAccountId');
+const currentUser = useMapGetter('getCurrentUser');
+
+const basePayload = computed(() => ({
+  accountId: accountId.value,
+  conversationId: currentChat.value?.id,
+  inboxId: currentChat.value?.inbox_id,
+  assigneeId: currentChat.value?.meta?.assignee?.id || currentUser.value?.id,
+}));
 
 const activeAction = ref(null);
 const resultText = ref('');
@@ -21,14 +33,15 @@ const actions = [
 ];
 
 const callAPI = async key => {
+  const payload = basePayload.value;
   if (key === 'summarize') {
-    return himatildaAPI.summarize({});
+    return himatildaAPI.summarize(payload);
   }
   if (key === 'suggest') {
-    return himatildaAPI.suggestReply({});
+    return himatildaAPI.suggestReply(payload);
   }
   if (key === 'rewrite') {
-    return himatildaAPI.rewrite({ text: rewriteInput.value });
+    return himatildaAPI.rewrite({ ...payload, text: rewriteInput.value });
   }
   return null;
 };
