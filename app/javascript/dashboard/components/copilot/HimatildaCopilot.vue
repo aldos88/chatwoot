@@ -46,6 +46,7 @@ const basePayload = computed(() => {
 
 const activeAction = ref(null);
 const resultText = ref('');
+const resultMeta = ref(null);
 const loading = ref(false);
 const errorMessage = ref('');
 const rewriteInput = ref('');
@@ -73,6 +74,7 @@ const callAPI = async key => {
 const handleAction = async action => {
   activeAction.value = action.key;
   resultText.value = '';
+  resultMeta.value = null;
   errorMessage.value = '';
 
   // For rewrite, wait for user to submit text first
@@ -84,6 +86,7 @@ const handleAction = async action => {
   try {
     const res = await callAPI(action.key);
     resultText.value = res?.data?.text || '';
+    resultMeta.value = res?.data?.meta || null;
   } catch (err) {
     errorMessage.value = err?.message || 'Something went wrong';
   } finally {
@@ -94,10 +97,12 @@ const handleAction = async action => {
 const handleRewriteSubmit = async () => {
   if (!rewriteInput.value.trim()) return;
   loading.value = true;
+  resultMeta.value = null;
   errorMessage.value = '';
   try {
     const res = await callAPI('rewrite');
     resultText.value = res?.data?.text || '';
+    resultMeta.value = res?.data?.meta || null;
   } catch (err) {
     errorMessage.value = err?.message || 'Something went wrong';
   } finally {
@@ -117,6 +122,13 @@ const sanitizeCopilotText = (s = '') => {
 };
 
 const displayText = computed(() => sanitizeCopilotText(resultText.value));
+
+const memoryLabel = computed(() => {
+  const m = resultMeta.value?.memory;
+  if (!m || !m.k) return '';
+  const src = Array.isArray(m.sources) ? m.sources.join(', ') : '';
+  return src ? `${src} (k=${m.k})` : `k=${m.k}`;
+});
 
 const handleUse = () => {
   if (!displayText.value) return;
@@ -224,6 +236,12 @@ const closeCopilotPanel = () => {
         <div class="font-medium text-n-slate-12">Copilot</div>
         <p class="text-n-slate-11 break-words whitespace-pre-wrap">
           {{ displayText }}
+        </p>
+        <p
+          v-if="memoryLabel"
+          class="text-xs text-n-slate-9"
+        >
+          Used memory snippets: {{ memoryLabel }}
         </p>
         <div class="flex flex-row mt-1">
           <Button
