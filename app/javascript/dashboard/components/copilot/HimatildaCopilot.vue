@@ -105,12 +105,24 @@ const handleRewriteSubmit = async () => {
   }
 };
 
+// Strip Markdown bold markers before inserting into composer
+const sanitizeForComposer = (s = '') => {
+  let t = String(s);
+  t = t.replace(/\*\*(.+?)\*\*/gs, '$1');
+  t = t.replace(/__(.+?)__/gs, '$1');
+  t = t.replace(/^\s*\*\*+/g, '');
+  t = t.replace(/\*\*+\s*$/g, '');
+  t = t.replace(/^\s*__+/g, '');
+  t = t.replace(/__+\s*$/g, '');
+  return t;
+};
+
 const handleUse = () => {
   if (!resultText.value) return;
   const event = useRichEditor.value
     ? BUS_EVENTS.INSERT_INTO_RICH_EDITOR
     : BUS_EVENTS.INSERT_INTO_NORMAL_EDITOR;
-  emitter.emit(event, resultText.value);
+  emitter.emit(event, sanitizeForComposer(resultText.value));
 };
 
 const closeCopilotPanel = () => {
