@@ -1,5 +1,6 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import { useAlert } from 'dashboard/composables';
 import { useStore } from 'dashboard/composables/store';
 import Copilot from 'dashboard/components-next/copilot/Copilot.vue';
@@ -20,6 +21,7 @@ defineProps({
 });
 
 const store = useStore();
+const route = useRoute();
 const { uiSettings, updateUISettings } = useUISettings();
 const { isEnterprise } = useConfig();
 const { width: windowWidth } = useWindowSize();
@@ -77,6 +79,40 @@ const closeCopilotPanel = () => {
     });
   }
 };
+
+// Auto-close copilot panel when leaving conversation routes
+const CONVERSATION_ROUTE_NAMES = new Set([
+  'home',
+  'inbox_conversation',
+  'inbox_dashboard',
+  'conversation_through_inbox',
+  'label_conversations',
+  'conversations_through_label',
+  'team_conversations',
+  'conversations_through_team',
+  'folder_conversations',
+  'conversations_through_folders',
+  'conversation_mentions',
+  'conversation_through_mentions',
+  'conversation_unattended',
+  'conversation_through_unattended',
+  'conversation_participating',
+  'conversation_through_participating',
+]);
+
+watch(
+  () => route.name,
+  newName => {
+    if (
+      uiSettings.value.is_copilot_panel_open &&
+      !CONVERSATION_ROUTE_NAMES.has(newName)
+    ) {
+      updateUISettings({
+        is_copilot_panel_open: false,
+      });
+    }
+  }
+);
 
 const setAssistant = async assistant => {
   selectedAssistantId.value = assistant.id;
