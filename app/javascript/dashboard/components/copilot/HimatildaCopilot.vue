@@ -1,7 +1,10 @@
 <script setup>
 import { ref, computed } from 'vue';
+import { emitter } from 'shared/helpers/mitt';
+import { BUS_EVENTS } from 'shared/constants/busEvents';
 import { useUISettings } from 'dashboard/composables/useUISettings';
 import { useMapGetter } from 'dashboard/composables/store';
+import { INBOX_TYPES } from 'dashboard/helper/inbox';
 import SidebarActionsHeader from 'dashboard/components-next/SidebarActionsHeader.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
@@ -12,6 +15,17 @@ const { updateUISettings } = useUISettings();
 const currentChat = useMapGetter('getSelectedChat');
 const accountId = useMapGetter('getCurrentAccountId');
 const currentUser = useMapGetter('getCurrentUser');
+const inboxes = useMapGetter('inboxes/getInboxes');
+
+const currentInboxType = computed(() => {
+  const inboxId = currentChat.value?.inbox_id;
+  const inbox = inboxes.value.find(i => i.id === inboxId);
+  return inbox?.channel_type || '';
+});
+
+const useRichEditor = computed(() =>
+  [INBOX_TYPES.WEB, INBOX_TYPES.EMAIL].includes(currentInboxType.value)
+);
 
 const basePayload = computed(() => ({
   accountId: accountId.value,
@@ -82,8 +96,11 @@ const handleRewriteSubmit = async () => {
 };
 
 const handleUse = () => {
-  // eslint-disable-next-line no-console
-  console.log('[HimatildaCopilot] Use this:', activeAction.value, resultText.value);
+  if (!resultText.value) return;
+  const event = useRichEditor.value
+    ? BUS_EVENTS.INSERT_INTO_RICH_EDITOR
+    : BUS_EVENTS.INSERT_INTO_NORMAL_EDITOR;
+  emitter.emit(event, resultText.value);
 };
 
 const closeCopilotPanel = () => {
@@ -191,6 +208,7 @@ const closeCopilotPanel = () => {
             faded
             sm
             slate
+            :disabled="!resultText"
             @click="handleUse"
           />
         </div>
