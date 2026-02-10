@@ -12,7 +12,22 @@
       "DESCRIPTION": "Источники знаний (URL/PDF) — загрузите документы, чтобы агент отвечал на основе вашей базы.",
       "CTA": "Add Document",
       "EMPTY_TITLE": "No documents found",
-      "EMPTY_MESSAGE": "Upload URLs or PDFs as knowledge sources so the AI agent can answer based on your documentation."
+      "EMPTY_MESSAGE": "Upload URLs or PDFs as knowledge sources so the AI agent can answer based on your documentation.",
+      "CREATE_TITLE": "Add Document",
+      "DELETE_TITLE": "Delete Document",
+      "DELETE_CONFIRM": "Are you sure you want to delete \"{name}\"? This action cannot be undone.",
+      "DELETE_ACTION": "Delete",
+      "FORM": {
+        "NAME_LABEL": "Name",
+        "NAME_PLACEHOLDER": "e.g. Product Documentation",
+        "URL_LABEL": "URL",
+        "ASSISTANT_LABEL": "Assistant",
+        "CANCEL": "Cancel",
+        "CREATE": "Add Document",
+        "NAME_REQUIRED": "Name is required",
+        "URL_REQUIRED": "URL is required",
+        "URL_INVALID": "Please enter a valid URL (http:// or https://)"
+      }
     },
     "MEMORIES": {
       "TITLE": "Memories",

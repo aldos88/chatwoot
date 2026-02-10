@@ -14,4 +14,21 @@ export default {
   rewrite(payload) {
     return http.post('/api/copilot/rewrite', payload);
   },
+
+  // AI Agents — Assistants
+  listAssistants() {
+    return http.get('/api/ai/assistants');
+  },
+
+  // AI Agents — Documents
+  listDocuments(assistantId) {
+    const params = assistantId ? { assistantId } : {};
+    return http.get('/api/ai/documents', { params });
+  },
+  createDocument(payload) {
+    return http.post('/api/ai/documents', payload);
+  },
+  deleteDocument(id) {
+    return http.delete(`/api/ai/documents/${id}`);
+  },
 };
