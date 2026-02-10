@@ -27,12 +27,22 @@ const useRichEditor = computed(() =>
   [INBOX_TYPES.WEB, INBOX_TYPES.EMAIL].includes(currentInboxType.value)
 );
 
-const basePayload = computed(() => ({
-  accountId: accountId.value,
-  conversationId: currentChat.value?.id,
-  inboxId: currentChat.value?.inbox_id,
-  assigneeId: currentChat.value?.meta?.assignee?.id || currentUser.value?.id,
-}));
+const resolvedAssigneeId = computed(
+  () => currentChat.value?.meta?.assignee?.id || currentUser.value?.id
+);
+
+const basePayload = computed(() => {
+  const aId = accountId.value;
+  const iId = currentChat.value?.inbox_id;
+  const opId = resolvedAssigneeId.value;
+  return {
+    accountId: aId,
+    conversationId: currentChat.value?.id,
+    inboxId: iId,
+    assigneeId: opId,
+    operatorSessionKey: `cw:${aId ?? 'na'}:${iId ?? 'na'}:op:${opId ?? 'na'}`,
+  };
+});
 
 const activeAction = ref(null);
 const resultText = ref('');
