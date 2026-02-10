@@ -374,6 +374,49 @@ const menuItems = computed(() => {
       ],
     },
     {
+      name: 'AI Agents',
+      icon: 'i-lucide-sparkles',
+      label: t('SIDEBAR.AI_AGENTS'),
+      children: [
+        {
+          name: 'AI FAQs',
+          label: t('SIDEBAR.AI_AGENTS_FAQS'),
+          activeOn: ['ai_agents_faqs_index'],
+          to: accountScopedRoute('ai_agents_faqs_index'),
+        },
+        {
+          name: 'AI Documents',
+          label: t('SIDEBAR.AI_AGENTS_DOCUMENTS'),
+          activeOn: ['ai_agents_documents_index'],
+          to: accountScopedRoute('ai_agents_documents_index'),
+        },
+        {
+          name: 'AI Memories',
+          label: t('SIDEBAR.AI_AGENTS_MEMORIES'),
+          activeOn: ['ai_agents_memories_index'],
+          to: accountScopedRoute('ai_agents_memories_index'),
+        },
+        {
+          name: 'AI Playground',
+          label: t('SIDEBAR.AI_AGENTS_PLAYGROUND'),
+          activeOn: ['ai_agents_playground_index'],
+          to: accountScopedRoute('ai_agents_playground_index'),
+        },
+        {
+          name: 'AI Inboxes',
+          label: t('SIDEBAR.AI_AGENTS_INBOXES'),
+          activeOn: ['ai_agents_inboxes_index'],
+          to: accountScopedRoute('ai_agents_inboxes_index'),
+        },
+        {
+          name: 'AI Settings',
+          label: t('SIDEBAR.AI_AGENTS_SETTINGS'),
+          activeOn: ['ai_agents_settings_index'],
+          to: accountScopedRoute('ai_agents_settings_index'),
+        },
+      ],
+    },
+    {
       name: 'Contacts',
       label: t('SIDEBAR.CONTACTS'),
       icon: 'i-lucide-contact',

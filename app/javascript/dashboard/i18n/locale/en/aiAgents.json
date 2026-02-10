@@ -1,0 +1,48 @@
+{
+  "AI_AGENTS": {
+    "FAQS": {
+      "TITLE": "FAQs",
+      "DESCRIPTION": "База быстрых ответов — готовые Q&A для автоматических ответов клиентам.",
+      "CTA": "Create FAQ",
+      "EMPTY_TITLE": "No FAQs found",
+      "EMPTY_MESSAGE": "Create question-answer pairs so the AI agent can instantly respond to common customer queries."
+    },
+    "DOCUMENTS": {
+      "TITLE": "Documents",
+      "DESCRIPTION": "Источники знаний (URL/PDF) — загрузите документы, чтобы агент отвечал на основе вашей базы.",
+      "CTA": "Add Document",
+      "EMPTY_TITLE": "No documents found",
+      "EMPTY_MESSAGE": "Upload URLs or PDFs as knowledge sources so the AI agent can answer based on your documentation."
+    },
+    "MEMORIES": {
+      "TITLE": "Memories",
+      "DESCRIPTION": "Долгосрочная память бизнеса — факты и правила, которые агент помнит всегда.",
+      "CTA": "Add Memory",
+      "EMPTY_TITLE": "No memories found",
+      "EMPTY_MESSAGE": "Add business facts and rules that the AI agent should always remember across all conversations."
+    },
+    "PLAYGROUND": {
+      "TITLE": "Playground",
+      "DESCRIPTION": "Тестовая песочница — проверьте, как агент отвечает, прежде чем включать на боевых инбоксах.",
+      "EMPTY_TITLE": "Playground",
+      "EMPTY_MESSAGE": "Test how your AI agent responds before enabling it on live inboxes. Coming soon."
+    },
+    "INBOXES": {
+      "TITLE": "Inboxes",
+      "DESCRIPTION": "Привязка агентов к инбоксам — выберите, на каких каналах работает AI.",
+      "CTA": "Connect Inbox",
+      "EMPTY_TITLE": "No inboxes connected",
+      "EMPTY_MESSAGE": "Connect your AI agent to inboxes so it can automatically assist on the channels you choose."
+    },
+    "SETTINGS": {
+      "TITLE": "Settings",
+      "DESCRIPTION": "Общие настройки AI — модели, лимиты, поведение агента.",
+      "EMPTY_TITLE": "Settings",
+      "EMPTY_MESSAGE": "Configure AI models, rate limits, and agent behavior. Coming soon."
+    },
+    "FILTERS": {
+      "STATUS": "Status",
+      "ASSISTANT": "Assistant"
+    }
+  }
+}
