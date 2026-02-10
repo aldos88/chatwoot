@@ -105,24 +105,25 @@ const handleRewriteSubmit = async () => {
   }
 };
 
-// Strip Markdown bold markers before inserting into composer
-const sanitizeForComposer = (s = '') => {
+// Strip Markdown bold markers and quote glyphs from copilot output
+const sanitizeCopilotText = (s = '') => {
   let t = String(s);
   t = t.replace(/\*\*(.+?)\*\*/gs, '$1');
   t = t.replace(/__(.+?)__/gs, '$1');
-  t = t.replace(/^\s*\*\*+/g, '');
-  t = t.replace(/\*\*+\s*$/g, '');
-  t = t.replace(/^\s*__+/g, '');
-  t = t.replace(/__+\s*$/g, '');
+  t = t.replace(/^\s*\*\*+/g, '').replace(/\*\*+\s*$/g, '');
+  t = t.replace(/^\s*__+/g, '').replace(/__+\s*$/g, '');
+  t = t.replace(/[«»"""„‟‹›]/g, '');
   return t;
 };
 
+const displayText = computed(() => sanitizeCopilotText(resultText.value));
+
 const handleUse = () => {
-  if (!resultText.value) return;
+  if (!displayText.value) return;
   const event = useRichEditor.value
     ? BUS_EVENTS.INSERT_INTO_RICH_EDITOR
     : BUS_EVENTS.INSERT_INTO_NORMAL_EDITOR;
-  emitter.emit(event, sanitizeForComposer(resultText.value));
+  emitter.emit(event, displayText.value);
 };
 
 const closeCopilotPanel = () => {
@@ -217,12 +218,12 @@ const closeCopilotPanel = () => {
 
       <!-- Result card -->
       <div
-        v-if="resultText"
+        v-if="displayText"
         class="w-full rounded-lg border border-n-weak bg-n-surface-1 p-4 space-y-3"
       >
         <div class="font-medium text-n-slate-12">Copilot</div>
         <p class="text-n-slate-11 break-words whitespace-pre-wrap">
-          {{ resultText }}
+          {{ displayText }}
         </p>
         <div class="flex flex-row mt-1">
           <Button
@@ -230,7 +231,7 @@ const closeCopilotPanel = () => {
             faded
             sm
             slate
-            :disabled="!resultText"
+            :disabled="!displayText"
             @click="handleUse"
           />
         </div>
