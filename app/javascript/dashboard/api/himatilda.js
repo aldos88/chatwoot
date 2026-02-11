@@ -14,6 +14,9 @@ export default {
   rewrite(payload) {
     return http.post('/api/copilot/rewrite', payload);
   },
+  askCopilot(payload) {
+    return http.post('/api/copilot/chat', payload);
+  },
 
   // AI Agents — Assistants
   listAssistants() {
