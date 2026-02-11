@@ -184,19 +184,18 @@ const sanitizeCopilotText = (s = '') => {
 
 const displayText = computed(() => sanitizeCopilotText(resultText.value));
 
-const memoryLabel = computed(() => {
-  const m = resultMeta.value?.memory;
-  if (!m || !m.k) return '';
-  const src = Array.isArray(m.sources) ? m.sources.join(', ') : '';
-  return src ? `${src} (k=${m.k})` : `k=${m.k}`;
-});
+const formatMetaSources = (obj) => {
+  if (!obj || !obj.k) return '';
+  const all = Array.isArray(obj.sources) ? obj.sources : [];
+  const shown = all.slice(0, 3);
+  const extra = all.length - shown.length;
+  let src = shown.join(', ');
+  if (extra > 0) src += ` +${extra} more`;
+  return src ? `${src} (k=${obj.k})` : `k=${obj.k}`;
+};
 
-const docsLabel = computed(() => {
-  const d = resultMeta.value?.documents;
-  if (!d || !d.k) return '';
-  const src = Array.isArray(d.sources) ? d.sources.join(', ') : '';
-  return src ? `${src} (k=${d.k})` : `k=${d.k}`;
-});
+const memoryLabel = computed(() => formatMetaSources(resultMeta.value?.memory));
+const docsLabel = computed(() => formatMetaSources(resultMeta.value?.documents));
 
 const handleUse = () => {
   if (!displayText.value) return;
@@ -226,7 +225,11 @@ const scrollToBottom = () => {
 const buildMetaLabel = (meta, key) => {
   const m = meta?.[key];
   if (!m || !m.k) return '';
-  const src = Array.isArray(m.sources) ? m.sources.join(', ') : '';
+  const all = Array.isArray(m.sources) ? m.sources : [];
+  const shown = all.slice(0, 3);
+  const extra = all.length - shown.length;
+  let src = shown.join(', ');
+  if (extra > 0) src += ` +${extra} more`;
   return src ? `${src} (k=${m.k})` : `k=${m.k}`;
 };
 
