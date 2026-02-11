@@ -191,6 +191,13 @@ const memoryLabel = computed(() => {
   return src ? `${src} (k=${m.k})` : `k=${m.k}`;
 });
 
+const docsLabel = computed(() => {
+  const d = resultMeta.value?.documents;
+  if (!d || !d.k) return '';
+  const src = Array.isArray(d.sources) ? d.sources.join(', ') : '';
+  return src ? `${src} (k=${d.k})` : `k=${d.k}`;
+});
+
 const handleUse = () => {
   if (!displayText.value) return;
   const event = useRichEditor.value
@@ -216,8 +223,8 @@ const scrollToBottom = () => {
   });
 };
 
-const buildMemoryLabel = meta => {
-  const m = meta?.memory;
+const buildMetaLabel = (meta, key) => {
+  const m = meta?.[key];
   if (!m || !m.k) return '';
   const src = Array.isArray(m.sources) ? m.sources.join(', ') : '';
   return src ? `${src} (k=${m.k})` : `k=${m.k}`;
@@ -248,7 +255,8 @@ const sendChat = async (overrideText, displayLabel) => {
       id: ++chatMsgId,
       role: 'assistant',
       content: text,
-      memoryLabel: buildMemoryLabel(res?.data?.meta),
+      memoryLabel: buildMetaLabel(res?.data?.meta, 'memory'),
+      docsLabel: buildMetaLabel(res?.data?.meta, 'documents'),
     });
   } catch (err) {
     chatMessages.value.push({
@@ -334,6 +342,12 @@ watch(() => currentChat.value?.id, () => {
                 :class="{ 'text-n-ruby-11': msg.isError }"
               >
                 {{ msg.content }}
+              </p>
+              <p
+                v-if="msg.docsLabel"
+                class="text-xs text-n-slate-9"
+              >
+                Used docs: {{ msg.docsLabel }}
               </p>
               <p
                 v-if="msg.memoryLabel"
@@ -476,6 +490,12 @@ watch(() => currentChat.value?.id, () => {
         <div class="font-medium text-n-slate-12">Copilot</div>
         <p class="text-n-slate-11 break-words whitespace-pre-wrap">
           {{ displayText }}
+        </p>
+        <p
+          v-if="docsLabel"
+          class="text-xs text-n-slate-9"
+        >
+          Used docs: {{ docsLabel }}
         </p>
         <p
           v-if="memoryLabel"
