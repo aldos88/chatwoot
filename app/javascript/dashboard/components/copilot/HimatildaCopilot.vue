@@ -65,6 +65,59 @@ const actions = [
   { key: 'rewrite', label: 'Rewrite draft', icon: 'i-lucide-pencil-line' },
 ];
 
+// --- Quick chips ---
+const CHIP_CONFIG = [
+  {
+    id: 'followup',
+    label: 'Как сделать follow-up?',
+    prompt: 'Клиент молчит. Дай мягкий follow-up в стиле Hi Sisters: 1) готовый текст, 2) следующий вопрос, 3) когда лучше написать повторно.',
+    condition: 'silentLead',
+  },
+  {
+    id: 'price',
+    label: 'Как отработать возражение по цене?',
+    prompt: 'Клиенту дорого. Дай вариант отработки возражения в стиле Hi Sisters без давления: 1) сообщение, 2) мягкая альтернатива (пробная/формат), 3) следующий вопрос.',
+    condition: 'priceObjection',
+  },
+  {
+    id: 'reschedule',
+    label: 'Как предложить альтернативные окна?',
+    prompt: 'Клиент хочет перенос. Дай ответ с альтернативными окнами и мягким удержанием записи: 1) сообщение, 2) что уточнить, 3) как не потерять клиента.',
+    condition: 'reschedule',
+  },
+  { id: 'reply', label: 'Что ответить?', prompt: 'Что ответить?', condition: 'always' },
+  { id: 'risks', label: 'Какие риски?', prompt: 'Какие риски?', condition: 'always' },
+  { id: 'close', label: 'Как закрыть на запись?', prompt: 'Как закрыть на запись?', condition: 'always' },
+];
+
+const conversationSignals = computed(() => {
+  const chat = currentChat.value;
+  if (!chat) return {};
+  const msgs = chat.messages || [];
+  const lastMsg = chat.last_non_activity_message;
+
+  // silentLead: last message is from agent → customer hasn't replied
+  const silentLead = lastMsg?.message_type === 1;
+
+  // scan last 5 customer messages for keywords
+  const recentText = msgs
+    .filter(m => m.message_type === 0 && !m.private)
+    .slice(-5)
+    .map(m => (m.content || '').toLowerCase())
+    .join(' ');
+
+  const priceObjection = /дорого|цена кусается|скидк|слишком дорого|expensive|budget|стоимость высок/.test(recentText);
+  const reschedule = /перенос|перенести|другая дата|другое время|не могу прийти|не смогу|reschedule|отменить запись/.test(recentText);
+
+  return { silentLead, priceObjection, reschedule };
+});
+
+const visibleChips = computed(() =>
+  CHIP_CONFIG
+    .filter(c => c.condition === 'always' || conversationSignals.value[c.condition])
+    .slice(0, 5)
+);
+
 const callAPI = async key => {
   const payload = basePayload.value;
   if (key === 'summarize') {
@@ -170,11 +223,11 @@ const buildMemoryLabel = meta => {
   return src ? `${src} (k=${m.k})` : `k=${m.k}`;
 };
 
-const sendChat = async () => {
-  const question = chatInput.value.trim();
+const sendChat = async (overrideText, displayLabel) => {
+  const question = (overrideText || chatInput.value).trim();
   if (!question || chatLoading.value) return;
 
-  chatMessages.value.push({ id: ++chatMsgId, role: 'user', content: question });
+  chatMessages.value.push({ id: ++chatMsgId, role: 'user', content: displayLabel || question });
   chatInput.value = '';
   chatLoading.value = true;
   scrollToBottom();
@@ -215,6 +268,10 @@ const handleChatKeydown = e => {
     e.preventDefault();
     sendChat();
   }
+};
+
+const handleChipClick = chip => {
+  sendChat(chip.prompt, chip.label);
 };
 
 const handleUseChatMsg = text => {
@@ -304,6 +361,25 @@ watch(() => currentChat.value?.id, () => {
             <Icon icon="i-lucide-loader-2" class="text-base animate-spin" />
             <span>Thinking...</span>
           </div>
+        </div>
+      </div>
+
+      <!-- Quick chips -->
+      <div
+        v-if="visibleChips.length"
+        class="shrink-0 px-4 py-2 border-t border-n-weak"
+      >
+        <span class="text-xs text-n-slate-10 block mb-1.5">Быстрые подсказки</span>
+        <div class="flex flex-wrap gap-1.5">
+          <button
+            v-for="chip in visibleChips"
+            :key="chip.id"
+            class="px-2.5 py-1 rounded-full text-xs border border-n-blue-6 text-n-blue-11 bg-n-blue-2 hover:bg-n-blue-3 transition-colors disabled:opacity-50"
+            :disabled="chatLoading"
+            @click="handleChipClick(chip)"
+          >
+            {{ chip.label }}
+          </button>
         </div>
       </div>
 
