@@ -88,6 +88,12 @@ const CHIP_CONFIG = [
   { id: 'reply', label: 'Что ответить?', prompt: 'Что ответить?', condition: 'always' },
   { id: 'risks', label: 'Какие риски?', prompt: 'Какие риски?', condition: 'always' },
   { id: 'close', label: 'Как закрыть на запись?', prompt: 'Как закрыть на запись?', condition: 'always' },
+  {
+    id: 'guide-checklist',
+    label: 'Что говорит гайд (3–5 пунктов)',
+    prompt: 'На основе текущей переписки и hi-sisters-guide.md дай 3–5 практичных пункта: что делать сейчас, чего избегать, и какой следующий вопрос задать клиенту. Кратко, по делу, без воды. Только plain text, без markdown bold, без кавычек.',
+    condition: 'always',
+  },
 ];
 
 const conversationSignals = computed(() => {
@@ -115,7 +121,7 @@ const conversationSignals = computed(() => {
 const visibleChips = computed(() =>
   CHIP_CONFIG
     .filter(c => c.condition === 'always' || conversationSignals.value[c.condition])
-    .slice(0, 5)
+    .slice(0, 6)
 );
 
 const callAPI = async key => {
