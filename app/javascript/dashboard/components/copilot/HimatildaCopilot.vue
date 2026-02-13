@@ -86,6 +86,7 @@ const CHIP_CONFIG = [
     condition: 'reschedule',
   },
   { id: 'reply', label: 'Что ответить?', prompt: 'Что ответить?', condition: 'always' },
+  { id: 'consult', label: 'Проконсультировать', prompt: 'Проконсультировать', condition: 'always' },
   { id: 'risks', label: 'Какие риски?', prompt: 'Какие риски?', condition: 'always' },
   { id: 'close', label: 'Как закрыть на запись?', prompt: 'Как закрыть на запись?', condition: 'always' },
   {
