@@ -323,6 +323,14 @@ onUnmounted(() => {
 <template>
   <div class="cal-app">
     <div class="cal-main">
+      <!-- DEBUG (remove after testing) -->
+      <div style="background:#fef08a;padding:4px 12px;font-size:11px;font-family:monospace;flex-shrink:0;">
+        state={{ state }} | days={{ days.length }} | curDate={{ fmtISO(currentDate) }}
+        | dayData={{ currentDayData?.date || 'null' }}
+        | specs={{ currentDayData?.specialists?.length ?? 'N/A' }}
+        | shown={{ daySpecialists.length }}
+      </div>
+
       <!-- ═══ Header ═══ -->
       <div class="cal-header">
         <div class="cal-header-left">
