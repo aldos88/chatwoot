@@ -417,6 +417,13 @@ const menuItems = computed(() => {
       ],
     },
     {
+      name: 'Calendar',
+      icon: 'i-lucide-calendar-days',
+      label: t('SIDEBAR.CALENDAR'),
+      to: accountScopedRoute('calendar_index'),
+      activeOn: ['calendar_index'],
+    },
+    {
       name: 'Contacts',
       label: t('SIDEBAR.CONTACTS'),
       icon: 'i-lucide-contact',

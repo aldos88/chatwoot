@@ -34,4 +34,9 @@ export default {
   deleteDocument(id) {
     return http.delete(`/api/ai/documents/${id}`);
   },
+
+  // CRM Calendar
+  getSchedule({ days = 7, from } = {}) {
+    return http.get('/api/crm/schedule', { params: { days, from } });
+  },
 };
