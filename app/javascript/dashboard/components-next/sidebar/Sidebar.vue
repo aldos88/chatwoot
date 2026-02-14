@@ -424,6 +424,31 @@ const menuItems = computed(() => {
       activeOn: ['calendar_index'],
     },
     {
+      name: 'Booking',
+      icon: 'i-lucide-calendar-plus',
+      label: t('SIDEBAR.BOOKING'),
+      children: [
+        {
+          name: 'Booking Catalog',
+          label: t('SIDEBAR.BOOKING_CATALOG'),
+          to: accountScopedRoute('booking_catalog'),
+          activeOn: ['booking_catalog'],
+        },
+        {
+          name: 'Booking Pricing',
+          label: t('SIDEBAR.BOOKING_PRICING'),
+          to: accountScopedRoute('booking_pricing'),
+          activeOn: ['booking_pricing'],
+        },
+        {
+          name: 'Booking Requests',
+          label: t('SIDEBAR.BOOKING_REQUESTS'),
+          to: accountScopedRoute('booking_requests'),
+          activeOn: ['booking_requests'],
+        },
+      ],
+    },
+    {
       name: 'Contacts',
       label: t('SIDEBAR.CONTACTS'),
       icon: 'i-lucide-contact',
