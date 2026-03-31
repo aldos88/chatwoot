@@ -9,6 +9,9 @@ import { frontendURL } from '../../helper/URLHelper';
 import helpcenterRoutes from './helpcenter/helpcenter.routes';
 import campaignsRoutes from './campaigns/campaigns.routes';
 import { routes as captainRoutes } from './captain/captain.routes';
+import { routes as aiAgentsRoutes } from './ai-agents/aiAgents.routes';
+import { routes as calendarRoutes } from './calendar/calendar.routes';
+import { routes as bookingRoutes } from './booking/booking.routes';
 import AppContainer from './Dashboard.vue';
 import Suspended from './suspended/Index.vue';
 import NoAccounts from './noAccounts/Index.vue';
@@ -20,6 +23,9 @@ export default {
       component: AppContainer,
       children: [
         ...captainRoutes,
+        ...aiAgentsRoutes,
+        ...calendarRoutes,
+        ...bookingRoutes,
         ...inboxRoutes,
         ...conversation.routes,
         ...settings.routes,

@@ -1,8 +1,10 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import { useAlert } from 'dashboard/composables';
 import { useStore } from 'dashboard/composables/store';
 import Copilot from 'dashboard/components-next/copilot/Copilot.vue';
+import HimatildaCopilot from './HimatildaCopilot.vue';
 import { useMapGetter } from 'dashboard/composables/store';
 import { useUISettings } from 'dashboard/composables/useUISettings';
 import { useConfig } from 'dashboard/composables/useConfig';
@@ -19,6 +21,7 @@ defineProps({
 });
 
 const store = useStore();
+const route = useRoute();
 const { uiSettings, updateUISettings } = useUISettings();
 const { isEnterprise } = useConfig();
 const { width: windowWidth } = useWindowSize();
@@ -77,6 +80,40 @@ const closeCopilotPanel = () => {
   }
 };
 
+// Auto-close copilot panel when leaving conversation routes
+const CONVERSATION_ROUTE_NAMES = new Set([
+  'home',
+  'inbox_conversation',
+  'inbox_dashboard',
+  'conversation_through_inbox',
+  'label_conversations',
+  'conversations_through_label',
+  'team_conversations',
+  'conversations_through_team',
+  'folder_conversations',
+  'conversations_through_folders',
+  'conversation_mentions',
+  'conversation_through_mentions',
+  'conversation_unattended',
+  'conversation_through_unattended',
+  'conversation_participating',
+  'conversation_through_participating',
+]);
+
+watch(
+  () => route.name,
+  newName => {
+    if (
+      uiSettings.value.is_copilot_panel_open &&
+      !CONVERSATION_ROUTE_NAMES.has(newName)
+    ) {
+      updateUISettings({
+        is_copilot_panel_open: false,
+      });
+    }
+  }
+);
+
 const setAssistant = async assistant => {
   selectedAssistantId.value = assistant.id;
   await updateUISettings({
@@ -84,16 +121,29 @@ const setAssistant = async assistant => {
   });
 };
 
+const isCaptainAvailable = computed(() => {
+  return (
+    isEnterprise &&
+    isFeatureEnabledonAccount.value(
+      currentAccountId.value,
+      FEATURE_FLAGS.CAPTAIN
+    )
+  );
+});
+
 const shouldShowCopilotPanel = computed(() => {
-  if (!isEnterprise) {
+  if (!isCaptainAvailable.value) {
     return false;
   }
-  const isCaptainEnabled = isFeatureEnabledonAccount.value(
-    currentAccountId.value,
-    FEATURE_FLAGS.CAPTAIN
-  );
   const { is_copilot_panel_open: isCopilotPanelOpen } = uiSettings.value;
-  return isCaptainEnabled && isCopilotPanelOpen && !uiFlags.value.fetchingList;
+  return isCopilotPanelOpen && !uiFlags.value.fetchingList;
+});
+
+const shouldShowHimatildaPanel = computed(() => {
+  if (isCaptainAvailable.value) {
+    return false;
+  }
+  return uiSettings.value.is_copilot_panel_open;
 });
 
 const handleReset = () => {
@@ -152,5 +202,11 @@ onMounted(() => {
       @reset="handleReset"
     />
   </div>
-  <template v-else />
+  <div
+    v-else-if="shouldShowHimatildaPanel"
+    v-on-click-outside="() => closeCopilotPanel()"
+    class="bg-n-surface-2 h-full overflow-hidden flex-col fixed top-0 ltr:right-0 rtl:left-0 z-40 w-full max-w-sm transition-transform duration-300 ease-in-out md:static md:w-[320px] md:min-w-[320px] ltr:border-l rtl:border-r border-n-weak 2xl:min-w-[360px] 2xl:w-[360px] shadow-lg md:shadow-none md:flex"
+  >
+    <HimatildaCopilot />
+  </div>
 </template>
